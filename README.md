@@ -30,12 +30,12 @@ The financials subgraph indexes events and metrics from the following contracts:
 - TokenBuyer (`0x4f2acdc74f6941390d9b1804fabc3e780388cfe5`)
 - USDCPayer (`0xd97Bcd9f47cEe35c0a9ec1dc40C1269afc9E8E1D`)
 - StreamFactory (`0x0fd206FC7A7dBcD5661157eDCb1FFDD0D02A61ff`)
+- ClientRewards (`0xaaF173E6b65aa4473C830EDB402D26B7A33c5E94`)
 
 ### Auction System
 - AuctionHouseV1 (`0xF15a943787014461d94da08aD4040f79Cd7c124e`)
 - AuctionHouseV2 (`0x9E9E1b545Bf48F4C81A13589cf5c9A3E9E4D5c77`)
 - AuctionHouseV3 (`0x1D835808ddCa38fbE14e560D8e25b3D256810aF0`)
-- ClientRewards (`0xaaF173E6b65aa4473C830EDB402D26B7A33c5E94`)
 
 ## Features
 
