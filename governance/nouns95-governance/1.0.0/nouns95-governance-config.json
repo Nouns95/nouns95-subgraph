@@ -1,0 +1,546 @@
+{
+  "version": "1",
+  "name": "Nouns95Governance",
+  "abis": {
+    "NounsDAOLogicV4": {
+      "path": "./abis/NounsDAOLogicV4.json"
+    },
+    "NounsDAOLogicV3": {
+      "path": "./abis/NounsDAOLogicV3.json"
+    },
+    "NounsDAOLogicV2_1": {
+      "path": "./abis/NounsDAOLogicV2_1.json"
+    },
+    "NounsDAOLogicV2": {
+      "path": "./abis/NounsDAOLogicV2.json"
+    },
+    "NounsDAOLogicV1": {
+      "path": "./abis/NounsDAOLogicV1.json"
+    },
+    "CandidatesAdminV1": {
+      "path": "./abis/CandidatesAdminV1.json"
+    },
+    "CandidatesAdminV2": {
+      "path": "./abis/CandidatesAdminV2.json"
+    },
+    "NounsToken": {
+      "path": "./abis/NounsToken.json"
+    }
+  },
+  "instances": [
+    {
+      "abi": "NounsDAOLogicV4",
+      "address": "0xA23e8A919D29d74Ee24d909D80f4bC8778d656d1",
+      "startBlock": 19717222,
+      "chain": "mainnet",
+      "handlers": {
+        "ProposalCreated(uint256,address,address[],uint256[],string[],bytes[],uint256,uint256,string)": {
+          "entities": {
+            "Proposal": {
+              "id": "event.params.id.toString()",
+              "explicit_id": true,
+              "mapping": {
+                "title": "event.params.description.split('\\n')[0]",
+                "description": "event.params.description",
+                "proposer": "event.params.proposer",
+                "startBlock": "event.params.startBlock",
+                "endBlock": "event.params.endBlock",
+                "status": "'ACTIVE'",
+                "forVotes": "0",
+                "againstVotes": "0",
+                "abstainVotes": "0",
+                "quorumVotes": "event.params.quorumVotes",
+                "createdTimestamp": "block.timestamp",
+                "createdBlock": "block.number",
+                "createdTxHash": "event.transaction.hash",
+                "lastUpdateBlock": "block.number",
+                "lastUpdateTimestamp": "block.timestamp"
+              }
+            }
+          }
+        },
+        "VoteCast(address,uint256,uint8,uint256,string)": {
+          "entities": {
+            "Vote": {
+              "id": "event.params.proposalId.toString().concat('-').concat(event.params.voter.toHexString())",
+              "mapping": {
+                "proposal": "event.params.proposalId.toString()",
+                "voter": "event.params.voter",
+                "support": "event.params.support",
+                "votes": "event.params.votes",
+                "reason": "event.params.reason",
+                "blockNumber": "block.number",
+                "blockTimestamp": "block.timestamp",
+                "transactionHash": "event.transaction.hash"
+              }
+            },
+            "Proposal": {
+              "id": "event.params.proposalId.toString()",
+              "explicit_id": true,
+              "mapping": {
+                "forVotes": "event.params.support == 1 ? proposal.forVotes + event.params.votes : proposal.forVotes",
+                "againstVotes": "event.params.support == 0 ? proposal.againstVotes + event.params.votes : proposal.againstVotes",
+                "abstainVotes": "event.params.support == 2 ? proposal.abstainVotes + event.params.votes : proposal.abstainVotes",
+                "lastUpdateBlock": "block.number",
+                "lastUpdateTimestamp": "block.timestamp"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "abi": "NounsDAOLogicV3",
+      "address": "0xe3caa436461DBa00CFBE1749148C9fa7FA1F5344",
+      "startBlock": 18614642,
+      "chain": "mainnet",
+      "handlers": {
+        "ProposalCreated(uint256,address,address[],uint256[],string[],bytes[],uint256,uint256,string)": {
+          "entities": {
+            "Proposal": {
+              "id": "event.params.id.toString()",
+              "explicit_id": true,
+              "mapping": {
+                "title": "event.params.description.split('\\n')[0]",
+                "description": "event.params.description",
+                "proposer": "event.params.proposer",
+                "startBlock": "event.params.startBlock",
+                "endBlock": "event.params.endBlock",
+                "status": "'ACTIVE'",
+                "forVotes": "0",
+                "againstVotes": "0",
+                "abstainVotes": "0",
+                "quorumVotes": "event.params.quorumVotes",
+                "createdTimestamp": "block.timestamp",
+                "createdBlock": "block.number",
+                "createdTxHash": "event.transaction.hash",
+                "lastUpdateBlock": "block.number",
+                "lastUpdateTimestamp": "block.timestamp"
+              }
+            }
+          }
+        },
+        "VoteCast(address,uint256,uint8,uint256,string)": {
+          "entities": {
+            "Vote": {
+              "id": "event.params.proposalId.toString().concat('-').concat(event.params.voter.toHexString())",
+              "mapping": {
+                "proposal": "event.params.proposalId.toString()",
+                "voter": "event.params.voter",
+                "support": "event.params.support",
+                "votes": "event.params.votes",
+                "reason": "event.params.reason",
+                "blockNumber": "block.number",
+                "blockTimestamp": "block.timestamp",
+                "transactionHash": "event.transaction.hash"
+              }
+            },
+            "Proposal": {
+              "id": "event.params.proposalId.toString()",
+              "explicit_id": true,
+              "mapping": {
+                "forVotes": "event.params.support == 1 ? proposal.forVotes + event.params.votes : proposal.forVotes",
+                "againstVotes": "event.params.support == 0 ? proposal.againstVotes + event.params.votes : proposal.againstVotes",
+                "abstainVotes": "event.params.support == 2 ? proposal.abstainVotes + event.params.votes : proposal.abstainVotes",
+                "lastUpdateBlock": "block.number",
+                "lastUpdateTimestamp": "block.timestamp"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "abi": "NounsDAOLogicV2_1",
+      "address": "0x51C7D7C47E440d937208bD987140D6db6B1E4051",
+      "startBlock": 15933286,
+      "chain": "mainnet",
+      "handlers": {
+        "ProposalCreated(uint256,address,address[],uint256[],string[],bytes[],uint256,uint256,string)": {
+          "entities": {
+            "Proposal": {
+              "id": "event.params.id.toString()",
+              "explicit_id": true,
+              "mapping": {
+                "title": "event.params.description.split('\\n')[0]",
+                "description": "event.params.description",
+                "proposer": "event.params.proposer",
+                "startBlock": "event.params.startBlock",
+                "endBlock": "event.params.endBlock",
+                "status": "'ACTIVE'",
+                "forVotes": "0",
+                "againstVotes": "0",
+                "abstainVotes": "0",
+                "quorumVotes": "event.params.quorumVotes",
+                "createdTimestamp": "block.timestamp",
+                "createdBlock": "block.number",
+                "createdTxHash": "event.transaction.hash",
+                "lastUpdateBlock": "block.number",
+                "lastUpdateTimestamp": "block.timestamp"
+              }
+            }
+          }
+        },
+        "VoteCast(address,uint256,uint8,uint256,string)": {
+          "entities": {
+            "Vote": {
+              "id": "event.params.proposalId.toString().concat('-').concat(event.params.voter.toHexString())",
+              "mapping": {
+                "proposal": "event.params.proposalId.toString()",
+                "voter": "event.params.voter",
+                "support": "event.params.support",
+                "votes": "event.params.votes",
+                "reason": "event.params.reason",
+                "blockNumber": "block.number",
+                "blockTimestamp": "block.timestamp",
+                "transactionHash": "event.transaction.hash"
+              }
+            },
+            "Proposal": {
+              "id": "event.params.proposalId.toString()",
+              "explicit_id": true,
+              "mapping": {
+                "forVotes": "event.params.support == 1 ? proposal.forVotes + event.params.votes : proposal.forVotes",
+                "againstVotes": "event.params.support == 0 ? proposal.againstVotes + event.params.votes : proposal.againstVotes",
+                "abstainVotes": "event.params.support == 2 ? proposal.abstainVotes + event.params.votes : proposal.abstainVotes",
+                "lastUpdateBlock": "block.number",
+                "lastUpdateTimestamp": "block.timestamp"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "abi": "NounsDAOLogicV2",
+      "address": "0xCaCF365eDA93F07741a80D4F39a773BAaBb3a873",
+      "startBlock": 15724506,
+      "chain": "mainnet",
+      "handlers": {
+        "ProposalCreated(uint256,address,address[],uint256[],string[],bytes[],uint256,uint256,string)": {
+          "entities": {
+            "Proposal": {
+              "id": "event.params.id.toString()",
+              "explicit_id": true,
+              "mapping": {
+                "title": "event.params.description.split('\\n')[0]",
+                "description": "event.params.description",
+                "proposer": "event.params.proposer",
+                "startBlock": "event.params.startBlock",
+                "endBlock": "event.params.endBlock",
+                "status": "'ACTIVE'",
+                "forVotes": "0",
+                "againstVotes": "0",
+                "abstainVotes": "0",
+                "quorumVotes": "event.params.quorumVotes",
+                "createdTimestamp": "block.timestamp",
+                "createdBlock": "block.number",
+                "createdTxHash": "event.transaction.hash",
+                "lastUpdateBlock": "block.number",
+                "lastUpdateTimestamp": "block.timestamp"
+              }
+            }
+          }
+        },
+        "VoteCast(address,uint256,uint8,uint256,string)": {
+          "entities": {
+            "Vote": {
+              "id": "event.params.proposalId.toString().concat('-').concat(event.params.voter.toHexString())",
+              "mapping": {
+                "proposal": "event.params.proposalId.toString()",
+                "voter": "event.params.voter",
+                "support": "event.params.support",
+                "votes": "event.params.votes",
+                "reason": "event.params.reason",
+                "blockNumber": "block.number",
+                "blockTimestamp": "block.timestamp",
+                "transactionHash": "event.transaction.hash"
+              }
+            },
+            "Proposal": {
+              "id": "event.params.proposalId.toString()",
+              "explicit_id": true,
+              "mapping": {
+                "forVotes": "event.params.support == 1 ? proposal.forVotes + event.params.votes : proposal.forVotes",
+                "againstVotes": "event.params.support == 0 ? proposal.againstVotes + event.params.votes : proposal.againstVotes",
+                "abstainVotes": "event.params.support == 2 ? proposal.abstainVotes + event.params.votes : proposal.abstainVotes",
+                "lastUpdateBlock": "block.number",
+                "lastUpdateTimestamp": "block.timestamp"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "abi": "NounsDAOLogicV1",
+      "address": "0xa43aFE317985726E4e194eb061Af77fbCb43F944",
+      "startBlock": 12985452,
+      "chain": "mainnet",
+      "handlers": {
+        "ProposalCreated(uint256,address,address[],uint256[],string[],bytes[],uint256,uint256,string)": {
+          "entities": {
+            "Proposal": {
+              "id": "event.params.id.toString()",
+              "explicit_id": true,
+              "mapping": {
+                "title": "event.params.description.split('\\n')[0]",
+                "description": "event.params.description",
+                "proposer": "event.params.proposer",
+                "startBlock": "event.params.startBlock",
+                "endBlock": "event.params.endBlock",
+                "status": "'ACTIVE'",
+                "forVotes": "0",
+                "againstVotes": "0",
+                "abstainVotes": "0",
+                "quorumVotes": "event.params.quorumVotes",
+                "createdTimestamp": "block.timestamp",
+                "createdBlock": "block.number",
+                "createdTxHash": "event.transaction.hash",
+                "lastUpdateBlock": "block.number",
+                "lastUpdateTimestamp": "block.timestamp"
+              }
+            }
+          }
+        },
+        "VoteCast(address,uint256,uint8,uint256,string)": {
+          "entities": {
+            "Vote": {
+              "id": "event.params.proposalId.toString().concat('-').concat(event.params.voter.toHexString())",
+              "mapping": {
+                "proposal": "event.params.proposalId.toString()",
+                "voter": "event.params.voter",
+                "support": "event.params.support",
+                "votes": "event.params.votes",
+                "reason": "event.params.reason",
+                "blockNumber": "block.number",
+                "blockTimestamp": "block.timestamp",
+                "transactionHash": "event.transaction.hash"
+              }
+            },
+            "Proposal": {
+              "id": "event.params.proposalId.toString()",
+              "explicit_id": true,
+              "mapping": {
+                "forVotes": "event.params.support == 1 ? proposal.forVotes + event.params.votes : proposal.forVotes",
+                "againstVotes": "event.params.support == 0 ? proposal.againstVotes + event.params.votes : proposal.againstVotes",
+                "abstainVotes": "event.params.support == 2 ? proposal.abstainVotes + event.params.votes : proposal.abstainVotes",
+                "lastUpdateBlock": "block.number",
+                "lastUpdateTimestamp": "block.timestamp"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "abi": "CandidatesAdminV1",
+      "address": "0x624eFabA6E7df177AD8cA5BeE3bD62f78B304B6e",
+      "startBlock": 18827886,
+      "chain": "mainnet",
+      "handlers": {
+        "ProposalCandidateCreated(address,address[],uint256[],string[],bytes[],string,string,uint256,bytes32)": {
+          "entities": {
+            "ProposalCandidate": {
+              "id": "event.params.slug",
+              "explicit_id": true,
+              "mapping": {
+                "proposer": "event.params.msgSender",
+                "description": "event.params.description",
+                "slug": "event.params.slug",
+                "proposalIdToUpdate": "event.params.proposalIdToUpdate",
+                "encodedProposalHash": "event.params.encodedProposalHash",
+                "status": "'ACTIVE'",
+                "createdTimestamp": "block.timestamp",
+                "createdBlock": "block.number",
+                "createdTxHash": "event.transaction.hash",
+                "lastUpdateBlock": "block.number",
+                "lastUpdateTimestamp": "block.timestamp"
+              }
+            }
+          }
+        },
+        "ProposalCandidateUpdated(address,address[],uint256[],string[],bytes[],string,string,uint256,bytes32,string)": {
+          "entities": {
+            "ProposalCandidate": {
+              "id": "event.params.slug",
+              "explicit_id": true,
+              "mapping": {
+                "description": "event.params.description",
+                "proposalIdToUpdate": "event.params.proposalIdToUpdate",
+                "encodedProposalHash": "event.params.encodedProposalHash",
+                "lastUpdateBlock": "block.number",
+                "lastUpdateTimestamp": "block.timestamp",
+                "lastUpdateReason": "event.params.reason"
+              }
+            }
+          }
+        },
+        "CandidateFeedbackSent(address,address,string,uint8,string)": {
+          "entities": {
+            "CandidateFeedback": {
+              "id": "event.params.slug.concat('-').concat(event.params.msgSender.toHexString())",
+              "mapping": {
+                "proposalCandidate": "event.params.slug",
+                "voter": "event.params.msgSender",
+                "proposer": "event.params.proposer",
+                "support": "event.params.support",
+                "reason": "event.params.reason",
+                "blockNumber": "block.number",
+                "blockTimestamp": "block.timestamp",
+                "transactionHash": "event.transaction.hash"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "abi": "CandidatesAdminV2",
+      "address": "0x513e9277192767eb4dc044A08da8228862828150",
+      "startBlock": 21672327,
+      "chain": "mainnet",
+      "handlers": {
+        "ProposalCandidateCreated(address,address[],uint256[],string[],bytes[],string,string,uint256,bytes32)": {
+          "entities": {
+            "ProposalCandidate": {
+              "id": "event.params.slug",
+              "explicit_id": true,
+              "mapping": {
+                "proposer": "event.params.msgSender",
+                "description": "event.params.description",
+                "slug": "event.params.slug",
+                "proposalIdToUpdate": "event.params.proposalIdToUpdate",
+                "encodedProposalHash": "event.params.encodedProposalHash",
+                "status": "'ACTIVE'",
+                "createdTimestamp": "block.timestamp",
+                "createdBlock": "block.number",
+                "createdTxHash": "event.transaction.hash",
+                "lastUpdateBlock": "block.number",
+                "lastUpdateTimestamp": "block.timestamp"
+              }
+            }
+          }
+        },
+        "ProposalCandidateUpdated(address,address[],uint256[],string[],bytes[],string,string,uint256,bytes32,string)": {
+          "entities": {
+            "ProposalCandidate": {
+              "id": "event.params.slug",
+              "explicit_id": true,
+              "mapping": {
+                "description": "event.params.description",
+                "proposalIdToUpdate": "event.params.proposalIdToUpdate",
+                "encodedProposalHash": "event.params.encodedProposalHash",
+                "lastUpdateBlock": "block.number",
+                "lastUpdateTimestamp": "block.timestamp",
+                "lastUpdateReason": "event.params.reason"
+              }
+            }
+          }
+        },
+        "CandidateFeedbackSent(address,address,string,uint8,string)": {
+          "entities": {
+            "CandidateFeedback": {
+              "id": "event.params.slug.concat('-').concat(event.params.msgSender.toHexString())",
+              "mapping": {
+                "proposalCandidate": "event.params.slug",
+                "voter": "event.params.msgSender",
+                "proposer": "event.params.proposer",
+                "support": "event.params.support",
+                "reason": "event.params.reason",
+                "blockNumber": "block.number",
+                "blockTimestamp": "block.timestamp",
+                "transactionHash": "event.transaction.hash"
+              }
+            }
+          }
+        },
+        "DunaAdminMessagePosted(string,uint256[])": {
+          "entities": {
+            "DunaAdminMessage": {
+              "id": "block.number.toString().concat('-').concat(event.transaction.hash.toHexString())",
+              "mapping": {
+                "message": "event.params.message",
+                "relatedProposals": "event.params.relatedProposals",
+                "blockNumber": "block.number",
+                "blockTimestamp": "block.timestamp",
+                "transactionHash": "event.transaction.hash"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "abi": "NounsToken",
+      "address": "0x9C8fF314C9Bc7F6e59A9d9225Fb22946427eDC03",
+      "startBlock": 12985438,
+      "chain": "mainnet",
+      "handlers": {
+        "Transfer(address,address,uint256)": {
+          "entities": {
+            "TokenTransfer": {
+              "id": "event.params.tokenId.toString().concat('-').concat(event.transaction.hash.toHexString())",
+              "mapping": {
+                "tokenId": "event.params.tokenId",
+                "from": "event.params.from",
+                "to": "event.params.to",
+                "blockNumber": "block.number",
+                "blockTimestamp": "block.timestamp",
+                "transactionHash": "event.transaction.hash"
+              }
+            }
+          }
+        },
+        "DelegateChanged(address,address,address)": {
+          "entities": {
+            "Delegation": {
+              "id": "event.params.delegator.toHexString().concat('-').concat(event.transaction.hash.toHexString())",
+              "mapping": {
+                "delegator": "event.params.delegator",
+                "fromDelegate": "event.params.fromDelegate",
+                "toDelegate": "event.params.toDelegate",
+                "blockNumber": "block.number",
+                "blockTimestamp": "block.timestamp",
+                "transactionHash": "event.transaction.hash"
+              }
+            }
+          }
+        },
+        "DelegateVotesChanged(address,uint256,uint256)": {
+          "entities": {
+            "VotingPowerChange": {
+              "id": "event.params.delegate.toHexString().concat('-').concat(event.transaction.hash.toHexString())",
+              "mapping": {
+                "delegate": "event.params.delegate",
+                "previousBalance": "event.params.previousBalance",
+                "newBalance": "event.params.newBalance",
+                "blockNumber": "block.number",
+                "blockTimestamp": "block.timestamp",
+                "transactionHash": "event.transaction.hash"
+              }
+            }
+          }
+        },
+        "NounCreated(uint256,(uint48,uint48,uint48,uint48,uint48))": {
+          "entities": {
+            "Noun": {
+              "id": "event.params.tokenId.toString()",
+              "mapping": {
+                "tokenId": "event.params.tokenId",
+                "background": "event.params.seed.background",
+                "body": "event.params.seed.body",
+                "accessory": "event.params.seed.accessory",
+                "head": "event.params.seed.head",
+                "glasses": "event.params.seed.glasses",
+                "createdTimestamp": "block.timestamp",
+                "createdBlock": "block.number",
+                "createdTxHash": "event.transaction.hash"
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+} 

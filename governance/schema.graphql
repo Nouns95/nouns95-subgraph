@@ -1,0 +1,50 @@
+type Proposal @entity {
+  id: ID!
+  title: String!
+  description: String!
+  proposer: Bytes!
+  proposerTokenBalance: BigInt! @goldsky(enrich: { source: "NounsToken", method: "balanceOf", params: ["proposer"] })
+  isCandidate: Boolean! @goldsky(enrich: { source: "CandidatesAdminV2", method: "getCandidateState.isCandidate", params: ["proposer"] })
+  candidateState: Int @goldsky(enrich: { source: "CandidatesAdminV2", method: "getCandidateState.state", params: ["proposer"] })
+  startBlock: BigInt!
+  endBlock: BigInt!
+  status: String!
+  forVotes: BigInt!
+  againstVotes: BigInt!
+  abstainVotes: BigInt!
+  quorumVotes: BigInt!
+  createdTimestamp: BigInt!
+  createdBlock: BigInt!
+  createdTxHash: String!
+  queuedTxHash: String
+  executedTxHash: String
+  canceledTxHash: String
+  vetoedTxHash: String
+  lastUpdateBlock: BigInt!
+  lastUpdateTimestamp: BigInt!
+  votes: [Vote!]! @derivedFrom(field: "proposal")
+}
+
+type Vote @entity {
+  id: ID!
+  proposal: Proposal!
+  voter: Bytes!
+  support: Int!
+  votes: BigInt!
+  reason: String
+  voterTokenBalance: BigInt! @goldsky(enrich: { source: "NounsToken", method: "balanceOf", params: ["voter"] })
+  voterDelegatedVotes: BigInt! @goldsky(enrich: { source: "NounsToken", method: "getCurrentVotes", params: ["voter"] })
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: String!
+}
+
+type VoterSnapshot @entity {
+  id: ID!
+  voter: Bytes!
+  proposal: Proposal!
+  tokenBalance: BigInt!
+  delegatedVotes: BigInt!
+  timestamp: BigInt!
+  blockNumber: BigInt!
+} 

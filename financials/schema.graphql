@@ -1,0 +1,553 @@
+type Auction @entity {
+  id: ID!
+  nounId: BigInt!
+  amount: BigInt!
+  startTime: BigInt!
+  endTime: BigInt!
+  bidder: Bytes
+  settled: Boolean!
+  bids: [Bid!]! @derivedFrom(field: "auction")
+  
+  # Enrichments
+  @goldsky(
+    name: "currentAuction"
+    function: "auction()"
+    source: "$address"
+  )
+  currentAuctionData: AuctionView
+
+  @goldsky(
+    name: "nounToken"
+    function: "nouns()"
+    source: "$address" 
+  )
+  nounTokenContract: Bytes
+
+  @goldsky(
+    name: "reservePrice" 
+    function: "reservePrice()"
+    source: "$address"
+  )
+  currentReservePrice: BigInt
+
+  @goldsky(
+    name: "timeBuffer"
+    function: "timeBuffer()"
+    source: "$address"
+  )
+  currentTimeBuffer: BigInt
+}
+
+type AuctionView @entity {
+  id: ID!
+  nounId: BigInt!
+  amount: BigInt!
+  startTime: BigInt!
+  endTime: BigInt!
+  bidder: Bytes
+  settled: Boolean!
+}
+
+type Bid @entity {
+  id: ID!
+  auction: Auction!
+  nounId: BigInt!
+  bidder: Bytes!
+  amount: BigInt!
+  timestamp: BigInt!
+  extended: Boolean!
+  transactionHash: Bytes!
+  
+  # For V2/V3
+  clientId: BigInt
+  
+  # Enrichments
+  @goldsky(
+    name: "bidderBalance"
+    function: "balanceOf(address)"
+    params: ["bidder"]
+    source: "$nounTokenAddress"
+  )
+  bidderNounBalance: BigInt
+}
+
+type TreasuryTransaction @entity {
+  id: ID!
+  txHash: Bytes!
+  target: Bytes!
+  value: BigInt!
+  signature: String!
+  data: Bytes!
+  eta: BigInt!
+  status: String! # QUEUED, EXECUTED, CANCELLED
+  timestamp: BigInt!
+  
+  # Enrichments
+  @goldsky(
+    name: "queuedStatus"
+    function: "queuedTransactions(bytes32)"
+    params: ["txHash"]
+    source: "$address"
+  )
+  isQueued: Boolean
+
+  @goldsky(
+    name: "delay"
+    function: "delay()"
+    source: "$address"
+  )
+  currentDelay: BigInt
+
+  @goldsky(
+    name: "gracePeriod"
+    function: "GRACE_PERIOD()"
+    source: "$address"
+  )
+  gracePeriod: BigInt
+
+  @goldsky(
+    name: "minimumDelay"
+    function: "MINIMUM_DELAY()"
+    source: "$address"
+  )
+  minimumDelay: BigInt
+
+  @goldsky(
+    name: "maximumDelay"
+    function: "MAXIMUM_DELAY()"
+    source: "$address"
+  )
+  maximumDelay: BigInt
+}
+
+type Stream @entity {
+  id: ID!
+  payer: Bytes!
+  recipient: Bytes!
+  tokenAmount: BigInt!
+  tokenAddress: Bytes!
+  startTime: BigInt!
+  stopTime: BigInt!
+  streamAddress: Bytes!
+  createdAt: BigInt!
+  
+  # Enrichments
+  @goldsky(
+    name: "predictedAddress"
+    function: "predictStreamAddress(address,address,address,uint256,address,uint256,uint256)"
+    params: ["msgSender", "payer", "recipient", "tokenAmount", "tokenAddress", "startTime", "stopTime"]
+    source: "$address"
+  )
+  predictedStreamAddress: Bytes
+
+  @goldsky(
+    name: "implementation"
+    function: "streamImplementation()"
+    source: "$address"
+  )
+  implementationAddress: Bytes
+
+  @goldsky(
+    name: "streamBalance"
+    function: "balanceOf(address)"
+    params: ["streamAddress"]
+    source: "$tokenAddress"
+  )
+  currentBalance: BigInt
+
+  @goldsky(
+    name: "streamRate"
+    function: "getStreamRate(address)"
+    params: ["streamAddress"]
+    source: "$address"
+  )
+  streamRate: BigInt
+}
+
+type DebtRecord @entity {
+  id: ID!
+  account: Bytes!
+  amount: BigInt!
+  timestamp: BigInt!
+  type: String! # REGISTERED, PAID_BACK
+  remainingDebt: BigInt
+  
+  # Enrichments
+  @goldsky(
+    name: "currentDebt"
+    function: "debtOf(address)"
+    params: ["account"]
+    source: "$address"
+  )
+  currentDebtAmount: BigInt
+
+  @goldsky(
+    name: "totalSystemDebt"
+    function: "totalDebt()"
+    source: "$address"
+  )
+  systemTotalDebt: BigInt
+}
+
+type DailyDebtSnapshot @entity {
+  id: ID! # timestamp rounded to day
+  totalDebt: BigInt!
+  activeDebtors: BigInt!
+  timestamp: BigInt!
+}
+
+type AuctionHouseConfig @entity {
+  id: ID!
+  version: String!
+  minBidIncrementPercentage: Int!
+  reservePrice: BigInt!
+  timeBuffer: BigInt!
+  
+  @goldsky(
+    name: "wethAddress"
+    function: "weth()"
+    source: "$address"
+  )
+  wethAddress: Bytes
+}
+
+type Client @entity {
+  id: ID!
+  clientId: BigInt!
+  name: String!
+  description: String!
+  approved: Boolean!
+  totalRewards: BigInt!
+  totalWithdrawn: BigInt!
+  lastRewardAt: BigInt
+  lastWithdrawalAt: BigInt
+  lastUpdatedAt: BigInt
+  lastApprovalUpdateAt: BigInt
+  registeredAt: BigInt!
+  transactionHash: Bytes!
+  rewards: [ClientReward!]! @derivedFrom(field: "client")
+  withdrawals: [ClientWithdrawal!]! @derivedFrom(field: "client")
+  
+  # Enrichments
+  @goldsky(
+    name: "clientBalance"
+    function: "clientBalances(uint32)"
+    params: ["id"]
+    source: "$address"
+  )
+  currentBalance: BigInt
+
+  @goldsky(
+    name: "clientMetadata"
+    function: "clientMetadata(uint32)"
+    params: ["id"]
+    source: "$address"
+  )
+  metadata: ClientMetadata
+
+  @goldsky(
+    name: "rewardsEnabled"
+    function: "auctionRewardsEnabled()"
+    source: "$address"
+  )
+  rewardsEnabled: Boolean
+
+  @goldsky(
+    name: "rewardParams"
+    function: "getAuctionRewardParams()"
+    source: "$address"
+  )
+  rewardParameters: AuctionRewardParams
+}
+
+type ClientReward @entity {
+  id: ID!
+  client: Client!
+  amount: BigInt!
+  timestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type ClientWithdrawal @entity {
+  id: ID!
+  client: Client!
+  amount: BigInt!
+  recipient: Bytes!
+  timestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type RewardsConfig @entity {
+  id: ID!
+  enabled: Boolean!
+  nextAuctionIdToReward: BigInt
+  lastUpdatedAuctionId: BigInt
+  nextProposalIdToReward: BigInt
+  nextProposalRewardFirstAuctionId: BigInt
+  auctionRewardsEnabled: Boolean!
+  proposalRewardsEnabled: Boolean!
+  auctionRewardsEnabledAt: BigInt
+  auctionRewardsDisabledAt: BigInt
+  proposalRewardsEnabledAt: BigInt
+  proposalRewardsDisabledAt: BigInt
+  paused: Boolean!
+  pausedBy: Bytes
+  pausedAt: BigInt
+  unpausedBy: Bytes
+  unpausedAt: BigInt
+  admin: Bytes
+  previousAdmin: Bytes
+  owner: Bytes
+  previousOwner: Bytes
+  timestamp: BigInt!
+  transactionHash: Bytes!
+  
+  # Enrichments
+  @goldsky(
+    name: "rewardsEnabled"
+    function: "rewardsEnabled()"
+    source: "$address"
+  )
+  currentlyEnabled: Boolean
+
+  @goldsky(
+    name: "nextAuctionId"
+    function: "nextAuctionIdToReward()"
+    source: "$address"
+  )
+  currentNextAuctionId: BigInt
+
+  @goldsky(
+    name: "proposalRewardsEnabled"
+    function: "proposalRewardsEnabled()"
+    source: "$address"
+  )
+  currentProposalRewardsEnabled: Boolean
+
+  @goldsky(
+    name: "proposalRewardParams"
+    function: "getProposalRewardParams()"
+    source: "$address"
+  )
+  proposalRewardParameters: ProposalRewardParams
+
+  @goldsky(
+    name: "lastProposalUpdate"
+    function: "lastProposalRewardsUpdate()"
+    source: "$address"
+  )
+  lastProposalRewardsUpdate: BigInt
+}
+
+type RewardsUpdate @entity {
+  id: ID!
+  firstAuctionId: BigInt!
+  lastAuctionId: BigInt!
+  timestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type ProposalRewardsUpdate @entity {
+  id: ID!
+  firstProposalId: BigInt!
+  lastProposalId: BigInt!
+  firstAuctionIdForRevenue: BigInt!
+  lastAuctionIdForRevenue: BigInt!
+  auctionRevenue: BigInt!
+  rewardPerProposal: BigInt!
+  rewardPerVote: BigInt!
+  timestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type ClientMetadata @entity {
+  id: ID!
+  approved: Boolean!
+  rewarded: BigInt!
+  withdrawn: BigInt!
+  name: String!
+  description: String!
+}
+
+type AuctionRewardParams @entity {
+  id: ID!
+  auctionRewardBps: Int!
+  minimumAuctionsBetweenUpdates: Int!
+}
+
+type ProposalRewardParams @entity {
+  id: ID!
+  minimumRewardPeriod: Int!
+  numProposalsEnoughForReward: Int!
+  proposalRewardBps: Int!
+  votingRewardBps: Int!
+  proposalEligibilityQuorumBps: Int!
+}
+
+type ProposalReward @entity {
+  id: ID!
+  client: Client!
+  proposalId: BigInt!
+  rewardAmount: BigInt!
+  votingReward: BigInt!
+  timestamp: BigInt!
+  
+  @goldsky(
+    name: "getVotingClientIds"
+    function: "getVotingClientIds(uint32)"
+    params: ["proposalId"]
+    source: "$address"
+  )
+  votingClientIds: [BigInt!]
+}
+
+type TreasuryMetrics @entity {
+  id: ID! # timestamp rounded to day
+  timestamp: BigInt!
+  
+  @goldsky(
+    name: "ethBalance"
+    function: "balance"
+    source: "$address"
+  )
+  ethBalance: BigInt
+
+  @goldsky(
+    name: "wethBalance"
+    function: "balanceOf(address)"
+    params: ["$address"]
+    source: "$wethAddress"
+  )
+  wethBalance: BigInt
+
+  @goldsky(
+    name: "usdcBalance"
+    function: "balanceOf(address)"
+    params: ["$address"]
+    source: "$usdcAddress"
+  )
+  usdcBalance: BigInt
+
+  @goldsky(
+    name: "stethBalance"
+    function: "balanceOf(address)"
+    params: ["$address"]
+    source: "$stethAddress"
+  )
+  stethBalance: BigInt
+
+  @goldsky(
+    name: "wstethBalance"
+    function: "balanceOf(address)"
+    params: ["$address"]
+    source: "$wstethAddress"
+  )
+  wstethBalance: BigInt
+
+  @goldsky(
+    name: "rethBalance"
+    function: "balanceOf(address)"
+    params: ["$address"]
+    source: "$rethAddress"
+  )
+  rethBalance: BigInt
+
+  @goldsky(
+    name: "stethSharePrice"
+    function: "getPooledEthByShares(uint256)"
+    params: ["1000000000000000000"] # 1 stETH in wei
+    source: "$stethAddress"
+  )
+  stethSharePrice: BigInt
+
+  @goldsky(
+    name: "wstethStethPerToken"
+    function: "stEthPerToken()"
+    source: "$wstethAddress"
+  )
+  wstethStethPerToken: BigInt
+
+  @goldsky(
+    name: "rethExchangeRate"
+    function: "getExchangeRate()"
+    source: "$rethAddress"
+  )
+  rethExchangeRate: BigInt
+
+  totalTransactions: BigInt!
+  totalOutflows: BigInt!
+  totalInflows: BigInt!
+
+  totalEthValue: BigInt!
+}
+
+type StreamMetrics @entity {
+  id: ID! # timestamp rounded to day
+  timestamp: BigInt!
+  totalActiveStreams: BigInt!
+  totalStreamValue: BigInt!
+  
+  @goldsky(
+    name: "implementation"
+    function: "streamImplementation()"
+    source: "$address"
+  )
+  currentImplementation: Bytes
+}
+
+type DebtMetrics @entity {
+  id: ID! # timestamp rounded to day
+  timestamp: BigInt!
+  
+  @goldsky(
+    name: "totalDebt"
+    function: "totalDebt()"
+    source: "$address"
+  )
+  currentTotalDebt: BigInt
+
+  @goldsky(
+    name: "tokenBalance"
+    function: "balanceOf(address)"
+    params: ["$address"]
+    source: "$paymentTokenAddress"
+  )
+  paymentTokenBalance: BigInt
+
+  totalDebtors: BigInt!
+  totalPaidBack: BigInt!
+}
+
+type ClientRewardMetrics @entity {
+  id: ID! # timestamp rounded to day
+  timestamp: BigInt!
+  totalClients: BigInt!
+  activeClients: BigInt!
+  totalRewardsDistributed: BigInt!
+  totalWithdrawn: BigInt!
+  
+  @goldsky(
+    name: "rewardsEnabled"
+    function: "rewardsEnabled()"
+    source: "$address"
+  )
+  rewardsEnabled: Boolean
+
+  @goldsky(
+    name: "proposalRewardsEnabled"
+    function: "proposalRewardsEnabled()"
+    source: "$address"
+  )
+  proposalRewardsEnabled: Boolean
+}
+
+type ClientMetrics @entity {
+  id: ID!
+  timestamp: BigInt!
+  totalClients: BigInt!
+  totalActiveClients: BigInt!
+  totalRewardsDistributed: BigInt!
+  totalRewardEvents: BigInt!
+  totalWithdrawn: BigInt!
+  totalWithdrawalEvents: BigInt!
+}

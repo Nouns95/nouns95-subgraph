@@ -1,0 +1,1904 @@
+{
+  "name": "nouns95-financials/1.0.0",
+  "version": "1",
+  "abis": {
+    "TreasuryV2": {
+      "path": "./abis/TreasuryV2.json"
+    },
+    "TreasuryV1": {
+      "path": "./abis/TreasuryV1.json"
+    },
+    "TokenBuyer": {
+      "path": "./abis/TokenBuyer.json"
+    },
+    "USDCPayer": {
+      "path": "./abis/USDCPayer.json"
+    },
+    "StreamFactory": {
+      "path": "./abis/StreamFactory.json"
+    },
+    "AuctionHouseV1": {
+      "path": "./abis/AuctionHouseV1.json"
+    },
+    "AuctionHouseV2": {
+      "path": "./abis/AuctionHouseV2.json"
+    },
+    "AuctionHouseV3": {
+      "path": "./abis/AuctionHouseV3.json"
+    },
+    "ClientRewards": {
+      "path": "./abis/ClientRewards.json"
+    }
+  },
+  "instances": [
+    {
+      "abi": "TreasuryV2",
+      "address": "0x0FB7CF84F171154cBC3F553aA9Df9b0e9076649D",
+      "startBlock": 17811720,
+      "chain": "mainnet",
+      "handlers": {
+        "QueueTransaction(bytes32,address,uint256,string,bytes,uint256)": {
+          "calls": {
+            "queuedStatus": {
+              "name": "queuedTransactions",
+              "params": ["event.params.txHash"],
+              "required": true
+            },
+            "delay": {
+              "name": "delay",
+              "required": true
+            }
+          },
+          "entities": {
+            "TreasuryTransaction": {
+              "id": "event.params.txHash.toHexString()",
+              "mapping": {
+                "txHash": "event.params.txHash",
+                "target": "event.params.target",
+                "value": "event.params.value",
+                "signature": "event.params.signature",
+                "data": "event.params.data",
+                "eta": "event.params.eta",
+                "status": "'QUEUED'",
+                "timestamp": "block.timestamp",
+                "isQueued": "calls.queuedStatus",
+                "currentDelay": "calls.delay",
+                "version": "'V2'"
+              }
+            },
+            "TreasuryMetrics": {
+              "id": "(block.timestamp / 86400).toString()",
+              "initialize": {
+                "timestamp": "0",
+                "totalTransactions": "0",
+                "totalOutflows": "0"
+              },
+              "mapping": {
+                "timestamp": "block.timestamp",
+                "totalTransactions": "entity.totalTransactions.plus(1)",
+                "totalOutflows": "entity.totalOutflows.plus(event.params.value)"
+              }
+            }
+          }
+        },
+        "ExecuteTransaction(bytes32,address,uint256,string,bytes,uint256)": {
+          "entities": {
+            "TreasuryTransaction": {
+              "id": "event.params.txHash.toHexString()",
+              "mapping": {
+                "status": "'EXECUTED'",
+                "executedAt": "block.timestamp",
+                "executedTxHash": "event.transaction.hash"
+              }
+            }
+          }
+        },
+        "CancelTransaction(bytes32,address,uint256,string,bytes,uint256)": {
+          "entities": {
+            "TreasuryTransaction": {
+              "id": "event.params.txHash.toHexString()",
+              "mapping": {
+                "status": "'CANCELLED'",
+                "cancelledAt": "block.timestamp",
+                "cancelledTxHash": "event.transaction.hash"
+              }
+            }
+          }
+        },
+        "ETHSent(indexed address,uint256)": {
+          "entities": {
+            "TreasuryTransfer": {
+              "id": "event.transaction.hash.toHexString().concat('-').concat(event.logIndex.toString())",
+              "mapping": {
+                "to": "event.params.to",
+                "amount": "event.params.amount",
+                "type": "'ETH'",
+                "timestamp": "block.timestamp",
+                "transactionHash": "event.transaction.hash",
+                "version": "'V2'"
+              }
+            },
+            "TreasuryMetrics": {
+              "id": "(block.timestamp / 86400).toString()",
+              "initialize": {
+                "timestamp": "0",
+                "totalETHTransfers": "0",
+                "totalETHSent": "0"
+              },
+              "mapping": {
+                "timestamp": "block.timestamp",
+                "totalETHTransfers": "entity.totalETHTransfers.plus(1)",
+                "totalETHSent": "entity.totalETHSent.plus(event.params.amount)"
+              }
+            }
+          }
+        },
+        "ERC20Sent(address,address,uint256)": {
+          "entities": {
+            "TreasuryTransfer": {
+              "id": "event.transaction.hash.toHexString().concat('-').concat(event.logIndex.toString())",
+              "mapping": {
+                "to": "event.params.to",
+                "token": "event.params.erc20Token",
+                "amount": "event.params.amount",
+                "type": "'ERC20'",
+                "timestamp": "block.timestamp",
+                "transactionHash": "event.transaction.hash",
+                "version": "'V2'"
+              }
+            },
+            "TreasuryMetrics": {
+              "id": "(block.timestamp / 86400).toString()",
+              "initialize": {
+                "timestamp": "0",
+                "totalERC20Transfers": "0"
+              },
+              "mapping": {
+                "timestamp": "block.timestamp",
+                "totalERC20Transfers": "entity.totalERC20Transfers.plus(1)"
+              }
+            }
+          }
+        },
+        "AdminChanged(address,address)": {
+          "entities": {
+            "TreasuryConfig": {
+              "id": "'V2'",
+              "mapping": {
+                "previousAdmin": "event.params.previousAdmin",
+                "newAdmin": "event.params.newAdmin",
+                "timestamp": "block.timestamp",
+                "transactionHash": "event.transaction.hash"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "abi": "TreasuryV1",
+      "address": "0x0BC3807Ec262cB779b38D65b38158acC3bfedE10",
+      "startBlock": 12985452,
+      "chain": "mainnet",
+      "handlers": {
+        "QueueTransaction(bytes32,address,uint256,string,bytes,uint256)": {
+          "calls": {
+            "queuedStatus": {
+              "name": "queuedTransactions",
+              "params": ["event.params.txHash"],
+              "required": true
+            },
+            "delay": {
+              "name": "delay",
+              "required": true
+            }
+          },
+          "entities": {
+            "TreasuryTransaction": {
+              "id": "event.params.txHash.toHexString()",
+              "mapping": {
+                "txHash": "event.params.txHash",
+                "target": "event.params.target",
+                "value": "event.params.value",
+                "signature": "event.params.signature",
+                "data": "event.params.data",
+                "eta": "event.params.eta",
+                "status": "'QUEUED'",
+                "timestamp": "block.timestamp",
+                "isQueued": "calls.queuedStatus",
+                "currentDelay": "calls.delay",
+                "version": "'V1'"
+              }
+            },
+            "TreasuryMetrics": {
+              "id": "(block.timestamp / 86400).toString()",
+              "initialize": {
+                "timestamp": "0",
+                "totalTransactions": "0",
+                "totalOutflows": "0"
+              },
+              "mapping": {
+                "timestamp": "block.timestamp",
+                "totalTransactions": "entity.totalTransactions.plus(1)",
+                "totalOutflows": "entity.totalOutflows.plus(event.params.value)"
+              }
+            }
+          }
+        },
+        "ExecuteTransaction(bytes32,address,uint256,string,bytes,uint256)": {
+          "entities": {
+            "TreasuryTransaction": {
+              "id": "event.params.txHash.toHexString()",
+              "mapping": {
+                "status": "'EXECUTED'",
+                "executedAt": "block.timestamp",
+                "executedTxHash": "event.transaction.hash"
+              }
+            }
+          }
+        },
+        "CancelTransaction(bytes32,address,uint256,string,bytes,uint256)": {
+          "entities": {
+            "TreasuryTransaction": {
+              "id": "event.params.txHash.toHexString()",
+              "mapping": {
+                "status": "'CANCELLED'",
+                "cancelledAt": "block.timestamp",
+                "cancelledTxHash": "event.transaction.hash"
+              }
+            }
+          }
+        },
+        "NewAdmin(address)": {
+          "entities": {
+            "TreasuryConfig": {
+              "id": "'V1'",
+              "mapping": {
+                "newAdmin": "event.params.newAdmin",
+                "timestamp": "block.timestamp",
+                "transactionHash": "event.transaction.hash"
+              }
+            }
+          }
+        },
+        "NewDelay(uint256)": {
+          "entities": {
+            "TreasuryConfig": {
+              "id": "'V1'",
+              "mapping": {
+                "delay": "event.params.newDelay",
+                "timestamp": "block.timestamp",
+                "transactionHash": "event.transaction.hash"
+              }
+            }
+          }
+        },
+        "NewPendingAdmin(address)": {
+          "entities": {
+            "TreasuryConfig": {
+              "id": "'V1'",
+              "mapping": {
+                "pendingAdmin": "event.params.newPendingAdmin",
+                "timestamp": "block.timestamp",
+                "transactionHash": "event.transaction.hash"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "abi": "TokenBuyer",
+      "address": "0x4f2acdc74f6941390d9b1804fabc3e780388cfe5",
+      "startBlock": 15981789,
+      "chain": "mainnet",
+      "handlers": {
+        "SoldETH(indexed address,uint256,uint256)": {
+          "calls": {
+            "currentPrice": {
+              "name": "price",
+              "required": true
+            },
+            "baselineAmount": {
+              "name": "baselinePaymentTokenAmount",
+              "required": true
+            },
+            "botDiscount": {
+              "name": "botDiscountBPs",
+              "required": true
+            }
+          },
+          "entities": {
+            "TokenSale": {
+              "id": "event.transaction.hash.toHexString().concat('-').concat(event.logIndex.toString())",
+              "mapping": {
+                "to": "event.params.to",
+                "ethAmount": "event.params.ethOut",
+                "tokenAmount": "event.params.tokenIn",
+                "timestamp": "block.timestamp",
+                "transactionHash": "event.transaction.hash",
+                "currentPrice": "calls.currentPrice",
+                "baselineAmount": "calls.baselineAmount",
+                "botDiscount": "calls.botDiscount"
+              }
+            },
+            "TokenBuyerMetrics": {
+              "id": "(block.timestamp / 86400).toString()",
+              "initialize": {
+                "timestamp": "0",
+                "totalETHSold": "0",
+                "totalTokensReceived": "0",
+                "totalSales": "0"
+              },
+              "mapping": {
+                "timestamp": "block.timestamp",
+                "totalETHSold": "entity.totalETHSold.plus(event.params.ethOut)",
+                "totalTokensReceived": "entity.totalTokensReceived.plus(event.params.tokenIn)",
+                "totalSales": "entity.totalSales.plus(1)",
+                "currentPrice": "calls.currentPrice",
+                "baselineAmount": "calls.baselineAmount",
+                "botDiscount": "calls.botDiscount"
+              }
+            }
+          }
+        },
+        "ETHWithdrawn(indexed address,uint256)": {
+          "entities": {
+            "TokenBuyerWithdrawal": {
+              "id": "event.transaction.hash.toHexString().concat('-').concat(event.logIndex.toString())",
+              "mapping": {
+                "to": "event.params.to",
+                "amount": "event.params.amount",
+                "timestamp": "block.timestamp",
+                "transactionHash": "event.transaction.hash"
+              }
+            },
+            "TokenBuyerMetrics": {
+              "id": "(block.timestamp / 86400).toString()",
+              "initialize": {
+                "timestamp": "0",
+                "totalWithdrawals": "0",
+                "totalWithdrawnAmount": "0"
+              },
+              "mapping": {
+                "timestamp": "block.timestamp",
+                "totalWithdrawals": "entity.totalWithdrawals.plus(1)",
+                "totalWithdrawnAmount": "entity.totalWithdrawnAmount.plus(event.params.amount)"
+              }
+            }
+          }
+        },
+        "BaselinePaymentTokenAmountSet(uint256,uint256)": {
+          "entities": {
+            "TokenBuyerConfig": {
+              "id": "'current'",
+              "mapping": {
+                "baselinePaymentTokenAmount": "event.params.newAmount",
+                "previousBaselineAmount": "event.params.oldAmount",
+                "timestamp": "block.timestamp",
+                "transactionHash": "event.transaction.hash"
+              }
+            }
+          }
+        },
+        "BotDiscountBPsSet(uint16,uint16)": {
+          "entities": {
+            "TokenBuyerConfig": {
+              "id": "'current'",
+              "mapping": {
+                "botDiscountBPs": "event.params.newBPs",
+                "previousBotDiscountBPs": "event.params.oldBPs",
+                "timestamp": "block.timestamp",
+                "transactionHash": "event.transaction.hash"
+              }
+            }
+          }
+        },
+        "PriceFeedSet(address,address)": {
+          "entities": {
+            "TokenBuyerConfig": {
+              "id": "'current'",
+              "mapping": {
+                "priceFeed": "event.params.newFeed",
+                "previousPriceFeed": "event.params.oldFeed",
+                "timestamp": "block.timestamp",
+                "transactionHash": "event.transaction.hash"
+              }
+            }
+          }
+        },
+        "PayerSet(address,address)": {
+          "entities": {
+            "TokenBuyerConfig": {
+              "id": "'current'",
+              "mapping": {
+                "payer": "event.params.newPayer",
+                "previousPayer": "event.params.oldPayer",
+                "timestamp": "block.timestamp",
+                "transactionHash": "event.transaction.hash"
+              }
+            }
+          }
+        },
+        "AdminSet(address,address)": {
+          "entities": {
+            "TokenBuyerConfig": {
+              "id": "'current'",
+              "mapping": {
+                "admin": "event.params.newAdmin",
+                "previousAdmin": "event.params.oldAdmin",
+                "timestamp": "block.timestamp",
+                "transactionHash": "event.transaction.hash"
+              }
+            }
+          }
+        },
+        "Paused(address)": {
+          "entities": {
+            "TokenBuyerConfig": {
+              "id": "'current'",
+              "mapping": {
+                "paused": "true",
+                "pausedBy": "event.params.account",
+                "pausedAt": "block.timestamp",
+                "transactionHash": "event.transaction.hash"
+              }
+            }
+          }
+        },
+        "Unpaused(address)": {
+          "entities": {
+            "TokenBuyerConfig": {
+              "id": "'current'",
+              "mapping": {
+                "paused": "false",
+                "unpausedBy": "event.params.account",
+                "unpausedAt": "block.timestamp",
+                "transactionHash": "event.transaction.hash"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "abi": "USDCPayer",
+      "address": "0xd97Bcd9f47cEe35c0a9ec1dc40C1269afc9E8E1D",
+      "startBlock": 15981789,
+      "chain": "mainnet",
+      "handlers": {
+        "RegisteredDebt(indexed address,uint256)": {
+          "calls": {
+            "currentDebt": {
+              "name": "debtOf",
+              "params": ["event.params.account"],
+              "required": true
+            },
+            "totalDebt": {
+              "name": "totalDebt",
+              "required": true
+            }
+          },
+          "entities": {
+            "DebtRecord": {
+              "id": "event.transaction.hash.toHexString().concat('-').concat(event.logIndex.toString())",
+              "mapping": {
+                "account": "event.params.account",
+                "amount": "event.params.amount",
+                "type": "'REGISTERED'",
+                "timestamp": "block.timestamp",
+                "transactionHash": "event.transaction.hash",
+                "currentDebtAmount": "calls.currentDebt",
+                "systemTotalDebt": "calls.totalDebt"
+              }
+            },
+            "AccountDebt": {
+              "id": "event.params.account.toHexString()",
+              "initialize": {
+                "totalDebtRegistered": "0",
+                "totalDebtPaid": "0",
+                "currentDebt": "0",
+                "lastUpdateTimestamp": "0"
+              },
+              "mapping": {
+                "account": "event.params.account",
+                "totalDebtRegistered": "entity.totalDebtRegistered.plus(event.params.amount)",
+                "currentDebt": "calls.currentDebt",
+                "lastUpdateTimestamp": "block.timestamp"
+              }
+            },
+            "DebtMetrics": {
+              "id": "(block.timestamp / 86400).toString()",
+              "initialize": {
+                "timestamp": "0",
+                "totalDebtRegistered": "0",
+                "totalDebtPaid": "0",
+                "totalDebtors": "0",
+                "activeDebtors": "0"
+              },
+              "mapping": {
+                "timestamp": "block.timestamp",
+                "totalDebtRegistered": "entity.totalDebtRegistered.plus(event.params.amount)",
+                "totalDebtors": "entity.totalDebtors.plus(1)",
+                "activeDebtors": "entity.activeDebtors.plus(1)",
+                "currentTotalDebt": "calls.totalDebt"
+              }
+            }
+          }
+        },
+        "PaidBackDebt(indexed address,uint256,uint256)": {
+          "calls": {
+            "currentDebt": {
+              "name": "debtOf",
+              "params": ["event.params.account"],
+              "required": true
+            },
+            "totalDebt": {
+              "name": "totalDebt",
+              "required": true
+            }
+          },
+          "entities": {
+            "DebtRecord": {
+              "id": "event.transaction.hash.toHexString().concat('-').concat(event.logIndex.toString())",
+              "mapping": {
+                "account": "event.params.account",
+                "amount": "event.params.amount",
+                "type": "'PAID'",
+                "timestamp": "block.timestamp",
+                "transactionHash": "event.transaction.hash",
+                "currentDebtAmount": "calls.currentDebt",
+                "systemTotalDebt": "calls.totalDebt",
+                "remainingDebt": "event.params.remainingDebt"
+              }
+            },
+            "AccountDebt": {
+              "id": "event.params.account.toHexString()",
+              "mapping": {
+                "totalDebtPaid": "entity.totalDebtPaid.plus(event.params.amount)",
+                "currentDebt": "calls.currentDebt",
+                "lastUpdateTimestamp": "block.timestamp"
+              }
+            },
+            "DebtMetrics": {
+              "id": "(block.timestamp / 86400).toString()",
+              "mapping": {
+                "timestamp": "block.timestamp",
+                "totalDebtPaid": "entity.totalDebtPaid.plus(event.params.amount)",
+                "currentTotalDebt": "calls.totalDebt",
+                "activeDebtors": "event.params.remainingDebt.equals(0) ? entity.activeDebtors.minus(1) : entity.activeDebtors"
+              }
+            }
+          }
+        },
+        "TokensWithdrawn(indexed address,uint256)": {
+          "entities": {
+            "USDCPayerWithdrawal": {
+              "id": "event.transaction.hash.toHexString().concat('-').concat(event.logIndex.toString())",
+              "mapping": {
+                "account": "event.params.account",
+                "amount": "event.params.amount",
+                "timestamp": "block.timestamp",
+                "transactionHash": "event.transaction.hash"
+              }
+            },
+            "DebtMetrics": {
+              "id": "(block.timestamp / 86400).toString()",
+              "initialize": {
+                "timestamp": "0",
+                "totalWithdrawals": "0",
+                "totalWithdrawnAmount": "0"
+              },
+              "mapping": {
+                "timestamp": "block.timestamp",
+                "totalWithdrawals": "entity.totalWithdrawals.plus(1)",
+                "totalWithdrawnAmount": "entity.totalWithdrawnAmount.plus(event.params.amount)"
+              }
+            }
+          }
+        },
+        "OwnershipTransferred(indexed address,indexed address)": {
+          "entities": {
+            "USDCPayerConfig": {
+              "id": "'current'",
+              "mapping": {
+                "owner": "event.params.newOwner",
+                "previousOwner": "event.params.previousOwner",
+                "timestamp": "block.timestamp",
+                "transactionHash": "event.transaction.hash"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "abi": "StreamFactory",
+      "address": "0x0fd206FC7A7dBcD5661157eDCb1FFDD0D02A61ff",
+      "startBlock": 16576500,
+      "chain": "mainnet",
+      "handlers": {
+        "StreamCreated(address,address,address,uint256,address,uint256,uint256,address)": {
+          "calls": {
+            "predictedAddress": {
+              "name": "predictStreamAddress",
+              "params": [
+                "event.params.msgSender",
+                "event.params.payer",
+                "event.params.recipient",
+                "event.params.tokenAmount",
+                "event.params.tokenAddress",
+                "event.params.startTime",
+                "event.params.stopTime"
+              ],
+              "required": true
+            },
+            "implementation": {
+              "name": "streamImplementation",
+              "required": true
+            },
+            "streamBalance": {
+              "name": "balanceOf",
+              "params": ["event.params.streamAddress"],
+              "source": "event.params.tokenAddress",
+              "required": true
+            },
+            "payerBalance": {
+              "name": "balanceOf",
+              "params": ["event.params.payer"],
+              "source": "event.params.tokenAddress",
+              "required": true
+            },
+            "recipientBalance": {
+              "name": "balanceOf",
+              "params": ["event.params.recipient"],
+              "source": "event.params.tokenAddress",
+              "required": true
+            }
+          },
+          "entities": {
+            "Stream": {
+              "id": "event.params.streamAddress.toHexString()",
+              "mapping": {
+                "creator": "event.params.msgSender",
+                "payer": "event.params.payer",
+                "recipient": "event.params.recipient",
+                "tokenAmount": "event.params.tokenAmount",
+                "tokenAddress": "event.params.tokenAddress",
+                "startTime": "event.params.startTime",
+                "stopTime": "event.params.stopTime",
+                "streamAddress": "event.params.streamAddress",
+                "createdAt": "block.timestamp",
+                "predictedStreamAddress": "calls.predictedAddress",
+                "implementationAddress": "calls.implementation",
+                "currentBalance": "calls.streamBalance",
+                "payerBalance": "calls.payerBalance",
+                "recipientBalance": "calls.recipientBalance",
+                "transactionHash": "event.transaction.hash"
+              }
+            },
+            "StreamMetrics": {
+              "id": "(block.timestamp / 86400).toString()",
+              "initialize": {
+                "timestamp": "0",
+                "totalStreamsCreated": "0",
+                "totalStreamValue": "0",
+                "activeStreams": "0",
+                "uniquePayers": "0",
+                "uniqueRecipients": "0"
+              },
+              "mapping": {
+                "timestamp": "block.timestamp",
+                "totalStreamsCreated": "entity.totalStreamsCreated.plus(1)",
+                "totalStreamValue": "entity.totalStreamValue.plus(event.params.tokenAmount)",
+                "activeStreams": "entity.activeStreams.plus(1)",
+                "currentImplementation": "calls.implementation"
+              }
+            },
+            "StreamParticipant": {
+              "id": "event.params.payer.toHexString()",
+              "initialize": {
+                "totalOutgoingStreams": "0",
+                "totalOutgoingValue": "0",
+                "activeOutgoingStreams": "0",
+                "totalIncomingStreams": "0",
+                "totalIncomingValue": "0",
+                "activeIncomingStreams": "0",
+                "lastStreamCreatedAt": "0",
+                "lastStreamReceivedAt": "0"
+              },
+              "mapping": {
+                "address": "event.params.payer",
+                "totalOutgoingStreams": "entity.totalOutgoingStreams.plus(1)",
+                "totalOutgoingValue": "entity.totalOutgoingValue.plus(event.params.tokenAmount)",
+                "activeOutgoingStreams": "entity.activeOutgoingStreams.plus(1)",
+                "lastStreamCreatedAt": "block.timestamp"
+              }
+            },
+            "StreamParticipantRecipient": {
+              "id": "event.params.recipient.toHexString()",
+              "initialize": {
+                "totalOutgoingStreams": "0",
+                "totalOutgoingValue": "0",
+                "activeOutgoingStreams": "0",
+                "totalIncomingStreams": "0",
+                "totalIncomingValue": "0",
+                "activeIncomingStreams": "0",
+                "lastStreamCreatedAt": "0",
+                "lastStreamReceivedAt": "0"
+              },
+              "mapping": {
+                "address": "event.params.recipient",
+                "totalIncomingStreams": "entity.totalIncomingStreams.plus(1)",
+                "totalIncomingValue": "entity.totalIncomingValue.plus(event.params.tokenAmount)",
+                "activeIncomingStreams": "entity.activeIncomingStreams.plus(1)",
+                "lastStreamReceivedAt": "block.timestamp"
+              }
+            },
+            "StreamToken": {
+              "id": "event.params.tokenAddress.toHexString()",
+              "initialize": {
+                "totalStreams": "0",
+                "totalStreamValue": "0",
+                "activeStreams": "0"
+              },
+              "mapping": {
+                "address": "event.params.tokenAddress",
+                "totalStreams": "entity.totalStreams.plus(1)",
+                "totalStreamValue": "entity.totalStreamValue.plus(event.params.tokenAmount)",
+                "activeStreams": "entity.activeStreams.plus(1)",
+                "lastStreamCreatedAt": "block.timestamp"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "abi": "AuctionHouseV1",
+      "address": "0xF15a943787014461d94da08aD4040f79Cd7c124e",
+      "startBlock": 12985445,
+      "chain": "mainnet",
+      "handlers": {
+        "AuctionCreated(uint256,uint256,uint256)": {
+          "calls": {
+            "currentAuction": {
+              "name": "auction",
+              "required": true
+            },
+            "nouns": {
+              "name": "nouns",
+              "required": true
+            },
+            "reservePrice": {
+              "name": "reservePrice",
+              "required": true
+            },
+            "timeBuffer": {
+              "name": "timeBuffer",
+              "required": true
+            }
+          },
+          "entities": {
+            "Auction": {
+              "id": "event.params.nounId.toString()",
+              "mapping": {
+                "nounId": "event.params.nounId",
+                "startTime": "event.params.startTime",
+                "endTime": "event.params.endTime",
+                "amount": "0",
+                "settled": "false",
+                "currentAuctionData": "calls.currentAuction",
+                "nounTokenContract": "calls.nouns",
+                "currentReservePrice": "calls.reservePrice",
+                "currentTimeBuffer": "calls.timeBuffer",
+                "version": "'V1'",
+                "createdAt": "block.timestamp",
+                "transactionHash": "event.transaction.hash"
+              }
+            },
+            "AuctionMetrics": {
+              "id": "(block.timestamp / 86400).toString()",
+              "initialize": {
+                "timestamp": "0",
+                "totalAuctions": "0",
+                "totalBids": "0",
+                "totalValue": "0",
+                "settledAuctions": "0",
+                "averageBidValue": "0"
+              },
+              "mapping": {
+                "timestamp": "block.timestamp",
+                "totalAuctions": "entity.totalAuctions.plus(1)",
+                "currentReservePrice": "calls.reservePrice",
+                "currentTimeBuffer": "calls.timeBuffer"
+              }
+            }
+          }
+        },
+        "AuctionBid(uint256,address,uint256,bool)": {
+          "calls": {
+            "bidderBalance": {
+              "name": "balanceOf",
+              "params": ["event.params.sender"],
+              "source": "calls.nouns",
+              "required": true
+            },
+            "auctionData": {
+              "name": "auction",
+              "required": true
+            }
+          },
+          "entities": {
+            "Bid": {
+              "id": "event.transaction.hash.toHexString().concat('-').concat(event.logIndex.toString())",
+              "mapping": {
+                "auction": "event.params.nounId.toString()",
+                "nounId": "event.params.nounId",
+                "bidder": "event.params.sender",
+                "amount": "event.params.value",
+                "extended": "event.params.extended",
+                "timestamp": "block.timestamp",
+                "transactionHash": "event.transaction.hash",
+                "bidderNounBalance": "calls.bidderBalance",
+                "version": "'V1'"
+              }
+            },
+            "Auction": {
+              "id": "event.params.nounId.toString()",
+              "mapping": {
+                "amount": "event.params.value",
+                "bidder": "event.params.sender",
+                "lastBidTime": "block.timestamp"
+              }
+            },
+            "AuctionMetrics": {
+              "id": "(block.timestamp / 86400).toString()",
+              "mapping": {
+                "timestamp": "block.timestamp",
+                "totalBids": "entity.totalBids.plus(1)",
+                "totalValue": "entity.totalValue.plus(event.params.value)",
+                "averageBidValue": "entity.totalValue.div(entity.totalBids)"
+              }
+            },
+            "Bidder": {
+              "id": "event.params.sender.toHexString()",
+              "initialize": {
+                "totalBids": "0",
+                "totalBidValue": "0",
+                "wonAuctions": "0",
+                "lastBidTime": "0"
+              },
+              "mapping": {
+                "address": "event.params.sender",
+                "totalBids": "entity.totalBids.plus(1)",
+                "totalBidValue": "entity.totalBidValue.plus(event.params.value)",
+                "lastBidTime": "block.timestamp",
+                "nounBalance": "calls.bidderBalance"
+              }
+            }
+          }
+        },
+        "AuctionExtended(uint256,uint256)": {
+          "entities": {
+            "Auction": {
+              "id": "event.params.nounId.toString()",
+              "mapping": {
+                "endTime": "event.params.endTime",
+                "extended": "true"
+              }
+            },
+            "AuctionExtension": {
+              "id": "event.transaction.hash.toHexString().concat('-').concat(event.logIndex.toString())",
+              "mapping": {
+                "nounId": "event.params.nounId",
+                "endTime": "event.params.endTime",
+                "timestamp": "block.timestamp",
+                "transactionHash": "event.transaction.hash",
+                "version": "'V1'"
+              }
+            }
+          }
+        },
+        "AuctionSettled(uint256,address,uint256)": {
+          "entities": {
+            "Auction": {
+              "id": "event.params.nounId.toString()",
+              "mapping": {
+                "settled": "true",
+                "winner": "event.params.winner",
+                "amount": "event.params.amount",
+                "settledAt": "block.timestamp"
+              }
+            },
+            "AuctionSettlement": {
+              "id": "event.transaction.hash.toHexString().concat('-').concat(event.logIndex.toString())",
+              "mapping": {
+                "nounId": "event.params.nounId",
+                "winner": "event.params.winner",
+                "amount": "event.params.amount",
+                "timestamp": "block.timestamp",
+                "transactionHash": "event.transaction.hash",
+                "version": "'V1'"
+              }
+            },
+            "AuctionMetrics": {
+              "id": "(block.timestamp / 86400).toString()",
+              "mapping": {
+                "timestamp": "block.timestamp",
+                "settledAuctions": "entity.settledAuctions.plus(1)"
+              }
+            },
+            "Bidder": {
+              "id": "event.params.winner.toHexString()",
+              "mapping": {
+                "wonAuctions": "entity.wonAuctions.plus(1)"
+              }
+            }
+          }
+        },
+        "AuctionTimeBufferUpdated(uint256)": {
+          "entities": {
+            "AuctionConfig": {
+              "id": "'V1'",
+              "mapping": {
+                "timeBuffer": "event.params.timeBuffer",
+                "timestamp": "block.timestamp",
+                "transactionHash": "event.transaction.hash"
+              }
+            }
+          }
+        },
+        "AuctionReservePriceUpdated(uint256)": {
+          "entities": {
+            "AuctionConfig": {
+              "id": "'V1'",
+              "mapping": {
+                "reservePrice": "event.params.reservePrice",
+                "timestamp": "block.timestamp",
+                "transactionHash": "event.transaction.hash"
+              }
+            }
+          }
+        },
+        "AuctionMinBidIncrementPercentageUpdated(uint256)": {
+          "entities": {
+            "AuctionConfig": {
+              "id": "'V1'",
+              "mapping": {
+                "minBidIncrementPercentage": "event.params.minBidIncrementPercentage",
+                "timestamp": "block.timestamp",
+                "transactionHash": "event.transaction.hash"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "abi": "AuctionHouseV2",
+      "address": "0x9E9E1b545Bf48F4C81A13589cf5c9A3E9E4D5c77",
+      "startBlock": 19717208,
+      "chain": "mainnet",
+      "handlers": {
+        "AuctionCreated(uint256,uint256,uint256)": {
+          "calls": {
+            "currentAuction": {
+              "name": "auction",
+              "required": true
+            },
+            "nouns": {
+              "name": "nouns",
+              "required": true
+            },
+            "reservePrice": {
+              "name": "reservePrice",
+              "required": true
+            },
+            "timeBuffer": {
+              "name": "timeBuffer",
+              "required": true
+            }
+          },
+          "entities": {
+            "Auction": {
+              "id": "event.params.nounId.toString()",
+              "mapping": {
+                "nounId": "event.params.nounId",
+                "startTime": "event.params.startTime",
+                "endTime": "event.params.endTime",
+                "amount": "0",
+                "settled": "false",
+                "currentAuctionData": "calls.currentAuction",
+                "nounTokenContract": "calls.nouns",
+                "currentReservePrice": "calls.reservePrice",
+                "currentTimeBuffer": "calls.timeBuffer",
+                "version": "'V2'",
+                "createdAt": "block.timestamp",
+                "transactionHash": "event.transaction.hash"
+              }
+            },
+            "AuctionMetrics": {
+              "id": "(block.timestamp / 86400).toString()",
+              "initialize": {
+                "timestamp": "0",
+                "totalAuctions": "0",
+                "totalBids": "0",
+                "totalValue": "0",
+                "settledAuctions": "0",
+                "averageBidValue": "0",
+                "clientBids": "0"
+              },
+              "mapping": {
+                "timestamp": "block.timestamp",
+                "totalAuctions": "entity.totalAuctions.plus(1)",
+                "currentReservePrice": "calls.reservePrice",
+                "currentTimeBuffer": "calls.timeBuffer"
+              }
+            }
+          }
+        },
+        "AuctionBid(uint256,address,uint256,bool)": {
+          "calls": {
+            "bidderBalance": {
+              "name": "balanceOf",
+              "params": ["event.params.sender"],
+              "source": "calls.nouns",
+              "required": true
+            },
+            "auctionData": {
+              "name": "auction",
+              "required": true
+            }
+          },
+          "entities": {
+            "Bid": {
+              "id": "event.transaction.hash.toHexString().concat('-').concat(event.logIndex.toString())",
+              "mapping": {
+                "auction": "event.params.nounId.toString()",
+                "nounId": "event.params.nounId",
+                "bidder": "event.params.sender",
+                "amount": "event.params.value",
+                "extended": "event.params.extended",
+                "timestamp": "block.timestamp",
+                "transactionHash": "event.transaction.hash",
+                "bidderNounBalance": "calls.bidderBalance",
+                "version": "'V2'"
+              }
+            },
+            "Auction": {
+              "id": "event.params.nounId.toString()",
+              "mapping": {
+                "amount": "event.params.value",
+                "bidder": "event.params.sender",
+                "lastBidTime": "block.timestamp"
+              }
+            },
+            "AuctionMetrics": {
+              "id": "(block.timestamp / 86400).toString()",
+              "mapping": {
+                "timestamp": "block.timestamp",
+                "totalBids": "entity.totalBids.plus(1)",
+                "totalValue": "entity.totalValue.plus(event.params.value)",
+                "averageBidValue": "entity.totalValue.div(entity.totalBids)"
+              }
+            },
+            "Bidder": {
+              "id": "event.params.sender.toHexString()",
+              "initialize": {
+                "totalBids": "0",
+                "totalBidValue": "0",
+                "wonAuctions": "0",
+                "lastBidTime": "0",
+                "clientBids": "0"
+              },
+              "mapping": {
+                "address": "event.params.sender",
+                "totalBids": "entity.totalBids.plus(1)",
+                "totalBidValue": "entity.totalBidValue.plus(event.params.value)",
+                "lastBidTime": "block.timestamp",
+                "nounBalance": "calls.bidderBalance"
+              }
+            }
+          }
+        },
+        "AuctionBidWithClientId(uint256,uint256,uint32)": {
+          "entities": {
+            "Bid": {
+              "id": "event.transaction.hash.toHexString().concat('-').concat(event.logIndex.toString())",
+              "mapping": {
+                "nounId": "event.params.nounId",
+                "amount": "event.params.value",
+                "clientId": "event.params.clientId",
+                "timestamp": "block.timestamp",
+                "transactionHash": "event.transaction.hash",
+                "version": "'V2'"
+              }
+            },
+            "AuctionMetrics": {
+              "id": "(block.timestamp / 86400).toString()",
+              "mapping": {
+                "clientBids": "entity.clientBids.plus(1)"
+              }
+            },
+            "ClientBidMetrics": {
+              "id": "event.params.clientId.toString()",
+              "initialize": {
+                "totalBids": "0",
+                "totalBidValue": "0",
+                "wonAuctions": "0"
+              },
+              "mapping": {
+                "clientId": "event.params.clientId",
+                "totalBids": "entity.totalBids.plus(1)",
+                "totalBidValue": "entity.totalBidValue.plus(event.params.value)",
+                "lastBidTime": "block.timestamp"
+              }
+            }
+          }
+        },
+        "AuctionSettled(uint256,address,uint256)": {
+          "entities": {
+            "Auction": {
+              "id": "event.params.nounId.toString()",
+              "mapping": {
+                "settled": "true",
+                "winner": "event.params.winner",
+                "amount": "event.params.amount",
+                "settledAt": "block.timestamp"
+              }
+            },
+            "AuctionSettlement": {
+              "id": "event.transaction.hash.toHexString().concat('-').concat(event.logIndex.toString())",
+              "mapping": {
+                "nounId": "event.params.nounId",
+                "winner": "event.params.winner",
+                "amount": "event.params.amount",
+                "timestamp": "block.timestamp",
+                "transactionHash": "event.transaction.hash",
+                "version": "'V2'"
+              }
+            },
+            "AuctionMetrics": {
+              "id": "(block.timestamp / 86400).toString()",
+              "mapping": {
+                "timestamp": "block.timestamp",
+                "settledAuctions": "entity.settledAuctions.plus(1)"
+              }
+            },
+            "Bidder": {
+              "id": "event.params.winner.toHexString()",
+              "mapping": {
+                "wonAuctions": "entity.wonAuctions.plus(1)"
+              }
+            }
+          }
+        },
+        "AuctionSettledWithClientId(uint256,uint32)": {
+          "entities": {
+            "AuctionSettlement": {
+              "id": "event.transaction.hash.toHexString().concat('-').concat(event.logIndex.toString())",
+              "mapping": {
+                "nounId": "event.params.nounId",
+                "clientId": "event.params.clientId",
+                "timestamp": "block.timestamp",
+                "transactionHash": "event.transaction.hash",
+                "version": "'V2'"
+              }
+            },
+            "ClientBidMetrics": {
+              "id": "event.params.clientId.toString()",
+              "mapping": {
+                "wonAuctions": "entity.wonAuctions.plus(1)",
+                "lastWinTime": "block.timestamp"
+              }
+            }
+          }
+        },
+        "AuctionExtended(uint256,uint256)": {
+          "entities": {
+            "Auction": {
+              "id": "event.params.nounId.toString()",
+              "mapping": {
+                "endTime": "event.params.endTime",
+                "extended": "true"
+              }
+            },
+            "AuctionExtension": {
+              "id": "event.transaction.hash.toHexString().concat('-').concat(event.logIndex.toString())",
+              "mapping": {
+                "nounId": "event.params.nounId",
+                "endTime": "event.params.endTime",
+                "timestamp": "block.timestamp",
+                "transactionHash": "event.transaction.hash",
+                "version": "'V2'"
+              }
+            }
+          }
+        },
+        "AuctionTimeBufferUpdated(uint256)": {
+          "entities": {
+            "AuctionConfig": {
+              "id": "'V2'",
+              "mapping": {
+                "timeBuffer": "event.params.timeBuffer",
+                "timestamp": "block.timestamp",
+                "transactionHash": "event.transaction.hash"
+              }
+            }
+          }
+        },
+        "AuctionReservePriceUpdated(uint256)": {
+          "entities": {
+            "AuctionConfig": {
+              "id": "'V2'",
+              "mapping": {
+                "reservePrice": "event.params.reservePrice",
+                "timestamp": "block.timestamp",
+                "transactionHash": "event.transaction.hash"
+              }
+            }
+          }
+        },
+        "AuctionMinBidIncrementPercentageUpdated(uint256)": {
+          "entities": {
+            "AuctionConfig": {
+              "id": "'V2'",
+              "mapping": {
+                "minBidIncrementPercentage": "event.params.minBidIncrementPercentage",
+                "timestamp": "block.timestamp",
+                "transactionHash": "event.transaction.hash"
+              }
+            }
+          }
+        },
+        "Paused(address)": {
+          "entities": {
+            "AuctionConfig": {
+              "id": "'V2'",
+              "mapping": {
+                "paused": "true",
+                "pausedBy": "event.params.account",
+                "pausedAt": "block.timestamp",
+                "transactionHash": "event.transaction.hash"
+              }
+            }
+          }
+        },
+        "Unpaused(address)": {
+          "entities": {
+            "AuctionConfig": {
+              "id": "'V2'",
+              "mapping": {
+                "paused": "false",
+                "unpausedBy": "event.params.account",
+                "unpausedAt": "block.timestamp",
+                "transactionHash": "event.transaction.hash"
+              }
+            }
+          }
+        },
+        "OwnershipTransferred(address,address)": {
+          "entities": {
+            "AuctionConfig": {
+              "id": "'V2'",
+              "mapping": {
+                "owner": "event.params.newOwner",
+                "previousOwner": "event.params.previousOwner",
+                "timestamp": "block.timestamp",
+                "transactionHash": "event.transaction.hash"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "abi": "AuctionHouseV3",
+      "address": "0x1D835808ddCa38fbE14e560D8e25b3D256810aF0",
+      "startBlock": 21536111,
+      "chain": "mainnet",
+      "handlers": {
+        "AuctionCreated(uint256,uint256,uint256)": {
+          "calls": {
+            "currentAuction": {
+              "name": "auction",
+              "required": true
+            },
+            "nouns": {
+              "name": "nouns",
+              "required": true
+            },
+            "reservePrice": {
+              "name": "reservePrice",
+              "required": true
+            },
+            "timeBuffer": {
+              "name": "timeBuffer",
+              "required": true
+            }
+          },
+          "entities": {
+            "Auction": {
+              "id": "event.params.nounId.toString()",
+              "mapping": {
+                "nounId": "event.params.nounId",
+                "startTime": "event.params.startTime",
+                "endTime": "event.params.endTime",
+                "amount": "0",
+                "settled": "false",
+                "currentAuctionData": "calls.currentAuction",
+                "nounTokenContract": "calls.nouns",
+                "currentReservePrice": "calls.reservePrice",
+                "currentTimeBuffer": "calls.timeBuffer",
+                "version": "'V3'",
+                "createdAt": "block.timestamp",
+                "transactionHash": "event.transaction.hash"
+              }
+            },
+            "AuctionMetrics": {
+              "id": "(block.timestamp / 86400).toString()",
+              "initialize": {
+                "timestamp": "0",
+                "totalAuctions": "0",
+                "totalBids": "0",
+                "totalValue": "0",
+                "settledAuctions": "0",
+                "averageBidValue": "0",
+                "clientBids": "0"
+              },
+              "mapping": {
+                "timestamp": "block.timestamp",
+                "totalAuctions": "entity.totalAuctions.plus(1)",
+                "currentReservePrice": "calls.reservePrice",
+                "currentTimeBuffer": "calls.timeBuffer"
+              }
+            }
+          }
+        },
+        "AuctionBid(uint256,address,uint256,bool)": {
+          "calls": {
+            "bidderBalance": {
+              "name": "balanceOf",
+              "params": ["event.params.sender"],
+              "source": "calls.nouns",
+              "required": true
+            },
+            "auctionData": {
+              "name": "auction",
+              "required": true
+            }
+          },
+          "entities": {
+            "Bid": {
+              "id": "event.transaction.hash.toHexString().concat('-').concat(event.logIndex.toString())",
+              "mapping": {
+                "auction": "event.params.nounId.toString()",
+                "nounId": "event.params.nounId",
+                "bidder": "event.params.sender",
+                "amount": "event.params.value",
+                "extended": "event.params.extended",
+                "timestamp": "block.timestamp",
+                "transactionHash": "event.transaction.hash",
+                "bidderNounBalance": "calls.bidderBalance",
+                "version": "'V3'"
+              }
+            },
+            "Auction": {
+              "id": "event.params.nounId.toString()",
+              "mapping": {
+                "amount": "event.params.value",
+                "bidder": "event.params.sender",
+                "lastBidTime": "block.timestamp"
+              }
+            },
+            "AuctionMetrics": {
+              "id": "(block.timestamp / 86400).toString()",
+              "mapping": {
+                "timestamp": "block.timestamp",
+                "totalBids": "entity.totalBids.plus(1)",
+                "totalValue": "entity.totalValue.plus(event.params.value)",
+                "averageBidValue": "entity.totalValue.div(entity.totalBids)"
+              }
+            },
+            "Bidder": {
+              "id": "event.params.sender.toHexString()",
+              "initialize": {
+                "totalBids": "0",
+                "totalBidValue": "0",
+                "wonAuctions": "0",
+                "lastBidTime": "0",
+                "clientBids": "0"
+              },
+              "mapping": {
+                "address": "event.params.sender",
+                "totalBids": "entity.totalBids.plus(1)",
+                "totalBidValue": "entity.totalBidValue.plus(event.params.value)",
+                "lastBidTime": "block.timestamp",
+                "nounBalance": "calls.bidderBalance"
+              }
+            }
+          }
+        },
+        "AuctionBidWithClientId(uint256,uint256,uint32)": {
+          "entities": {
+            "Bid": {
+              "id": "event.transaction.hash.toHexString().concat('-').concat(event.logIndex.toString())",
+              "mapping": {
+                "nounId": "event.params.nounId",
+                "amount": "event.params.value",
+                "clientId": "event.params.clientId",
+                "timestamp": "block.timestamp",
+                "transactionHash": "event.transaction.hash",
+                "version": "'V3'"
+              }
+            },
+            "AuctionMetrics": {
+              "id": "(block.timestamp / 86400).toString()",
+              "mapping": {
+                "clientBids": "entity.clientBids.plus(1)"
+              }
+            },
+            "ClientBidMetrics": {
+              "id": "event.params.clientId.toString()",
+              "initialize": {
+                "totalBids": "0",
+                "totalBidValue": "0",
+                "wonAuctions": "0"
+              },
+              "mapping": {
+                "clientId": "event.params.clientId",
+                "totalBids": "entity.totalBids.plus(1)",
+                "totalBidValue": "entity.totalBidValue.plus(event.params.value)",
+                "lastBidTime": "block.timestamp"
+              }
+            }
+          }
+        },
+        "AuctionSettled(uint256,address,uint256)": {
+          "entities": {
+            "Auction": {
+              "id": "event.params.nounId.toString()",
+              "mapping": {
+                "settled": "true",
+                "winner": "event.params.winner",
+                "amount": "event.params.amount",
+                "settledAt": "block.timestamp"
+              }
+            },
+            "AuctionSettlement": {
+              "id": "event.transaction.hash.toHexString().concat('-').concat(event.logIndex.toString())",
+              "mapping": {
+                "nounId": "event.params.nounId",
+                "winner": "event.params.winner",
+                "amount": "event.params.amount",
+                "timestamp": "block.timestamp",
+                "transactionHash": "event.transaction.hash",
+                "version": "'V3'"
+              }
+            },
+            "AuctionMetrics": {
+              "id": "(block.timestamp / 86400).toString()",
+              "mapping": {
+                "timestamp": "block.timestamp",
+                "settledAuctions": "entity.settledAuctions.plus(1)"
+              }
+            },
+            "Bidder": {
+              "id": "event.params.winner.toHexString()",
+              "mapping": {
+                "wonAuctions": "entity.wonAuctions.plus(1)"
+              }
+            }
+          }
+        },
+        "AuctionSettledWithClientId(uint256,uint32)": {
+          "entities": {
+            "AuctionSettlement": {
+              "id": "event.transaction.hash.toHexString().concat('-').concat(event.logIndex.toString())",
+              "mapping": {
+                "nounId": "event.params.nounId",
+                "clientId": "event.params.clientId",
+                "timestamp": "block.timestamp",
+                "transactionHash": "event.transaction.hash",
+                "version": "'V3'"
+              }
+            },
+            "ClientBidMetrics": {
+              "id": "event.params.clientId.toString()",
+              "mapping": {
+                "wonAuctions": "entity.wonAuctions.plus(1)",
+                "lastWinTime": "block.timestamp"
+              }
+            }
+          }
+        },
+        "AuctionExtended(uint256,uint256)": {
+          "entities": {
+            "Auction": {
+              "id": "event.params.nounId.toString()",
+              "mapping": {
+                "endTime": "event.params.endTime",
+                "extended": "true"
+              }
+            },
+            "AuctionExtension": {
+              "id": "event.transaction.hash.toHexString().concat('-').concat(event.logIndex.toString())",
+              "mapping": {
+                "nounId": "event.params.nounId",
+                "endTime": "event.params.endTime",
+                "timestamp": "block.timestamp",
+                "transactionHash": "event.transaction.hash",
+                "version": "'V3'"
+              }
+            }
+          }
+        },
+        "AuctionTimeBufferUpdated(uint256)": {
+          "entities": {
+            "AuctionConfig": {
+              "id": "'V3'",
+              "mapping": {
+                "timeBuffer": "event.params.timeBuffer",
+                "timestamp": "block.timestamp",
+                "transactionHash": "event.transaction.hash"
+              }
+            }
+          }
+        },
+        "AuctionReservePriceUpdated(uint256)": {
+          "entities": {
+            "AuctionConfig": {
+              "id": "'V3'",
+              "mapping": {
+                "reservePrice": "event.params.reservePrice",
+                "timestamp": "block.timestamp",
+                "transactionHash": "event.transaction.hash"
+              }
+            }
+          }
+        },
+        "AuctionMinBidIncrementPercentageUpdated(uint256)": {
+          "entities": {
+            "AuctionConfig": {
+              "id": "'V3'",
+              "mapping": {
+                "minBidIncrementPercentage": "event.params.minBidIncrementPercentage",
+                "timestamp": "block.timestamp",
+                "transactionHash": "event.transaction.hash"
+              }
+            }
+          }
+        },
+        "Paused(address)": {
+          "entities": {
+            "AuctionConfig": {
+              "id": "'V3'",
+              "mapping": {
+                "paused": "true",
+                "pausedBy": "event.params.account",
+                "pausedAt": "block.timestamp",
+                "transactionHash": "event.transaction.hash"
+              }
+            }
+          }
+        },
+        "Unpaused(address)": {
+          "entities": {
+            "AuctionConfig": {
+              "id": "'V3'",
+              "mapping": {
+                "paused": "false",
+                "unpausedBy": "event.params.account",
+                "unpausedAt": "block.timestamp",
+                "transactionHash": "event.transaction.hash"
+              }
+            }
+          }
+        },
+        "OwnershipTransferred(address,address)": {
+          "entities": {
+            "AuctionConfig": {
+              "id": "'V3'",
+              "mapping": {
+                "owner": "event.params.newOwner",
+                "previousOwner": "event.params.previousOwner",
+                "timestamp": "block.timestamp",
+                "transactionHash": "event.transaction.hash"
+              }
+            }
+          }
+        },
+        "SanctionsOracleSet(address)": {
+          "entities": {
+            "AuctionConfig": {
+              "id": "'V3'",
+              "mapping": {
+                "sanctionsOracle": "event.params.newSanctionsOracle",
+                "timestamp": "block.timestamp",
+                "transactionHash": "event.transaction.hash"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "abi": "ClientRewards",
+      "address": "0xaaF173E6b65aa4473C830EDB402D26B7A33c5E94",
+      "startBlock": 19818565,
+      "chain": "mainnet",
+      "handlers": {
+        "ClientRegistered(uint32,string,string)": {
+          "entities": {
+            "Client": {
+              "id": "event.params.clientId.toString()",
+              "mapping": {
+                "clientId": "event.params.clientId",
+                "name": "event.params.name",
+                "description": "event.params.description",
+                "registeredAt": "block.timestamp",
+                "transactionHash": "event.transaction.hash"
+              }
+            },
+            "ClientMetrics": {
+              "id": "(block.timestamp / 86400).toString()",
+              "initialize": {
+                "timestamp": "0",
+                "totalClients": "0",
+                "totalActiveClients": "0"
+              },
+              "mapping": {
+                "timestamp": "block.timestamp",
+                "totalClients": "entity.totalClients.plus(1)",
+                "totalActiveClients": "entity.totalActiveClients.plus(1)"
+              }
+            }
+          }
+        },
+        "ClientUpdated(uint32,string,string)": {
+          "entities": {
+            "Client": {
+              "id": "event.params.clientId.toString()",
+              "mapping": {
+                "name": "event.params.name",
+                "description": "event.params.description",
+                "lastUpdatedAt": "block.timestamp",
+                "transactionHash": "event.transaction.hash"
+              }
+            }
+          }
+        },
+        "ClientApprovalSet(uint32,bool)": {
+          "entities": {
+            "Client": {
+              "id": "event.params.clientId.toString()",
+              "mapping": {
+                "approved": "event.params.approved",
+                "lastApprovalUpdateAt": "block.timestamp",
+                "transactionHash": "event.transaction.hash"
+              }
+            },
+            "ClientMetrics": {
+              "id": "(block.timestamp / 86400).toString()",
+              "mapping": {
+                "timestamp": "block.timestamp",
+                "totalActiveClients": "event.params.approved ? entity.totalActiveClients.plus(1) : entity.totalActiveClients.minus(1)"
+              }
+            }
+          }
+        },
+        "ClientRewarded(uint32,uint256)": {
+          "entities": {
+            "ClientReward": {
+              "id": "event.transaction.hash.toHexString().concat('-').concat(event.logIndex.toString())",
+              "mapping": {
+                "clientId": "event.params.clientId",
+                "amount": "event.params.amount",
+                "timestamp": "block.timestamp",
+                "transactionHash": "event.transaction.hash"
+              }
+            },
+            "Client": {
+              "id": "event.params.clientId.toString()",
+              "initialize": {
+                "totalRewards": "0",
+                "lastRewardAt": "0"
+              },
+              "mapping": {
+                "totalRewards": "entity.totalRewards.plus(event.params.amount)",
+                "lastRewardAt": "block.timestamp"
+              }
+            },
+            "RewardMetrics": {
+              "id": "(block.timestamp / 86400).toString()",
+              "initialize": {
+                "timestamp": "0",
+                "totalRewardsDistributed": "0",
+                "totalRewardEvents": "0"
+              },
+              "mapping": {
+                "timestamp": "block.timestamp",
+                "totalRewardsDistributed": "entity.totalRewardsDistributed.plus(event.params.amount)",
+                "totalRewardEvents": "entity.totalRewardEvents.plus(1)"
+              }
+            }
+          }
+        },
+        "ClientBalanceWithdrawal(uint32,uint256,address)": {
+          "entities": {
+            "ClientWithdrawal": {
+              "id": "event.transaction.hash.toHexString().concat('-').concat(event.logIndex.toString())",
+              "mapping": {
+                "clientId": "event.params.clientId",
+                "amount": "event.params.amount",
+                "to": "event.params.to",
+                "timestamp": "block.timestamp",
+                "transactionHash": "event.transaction.hash"
+              }
+            },
+            "Client": {
+              "id": "event.params.clientId.toString()",
+              "initialize": {
+                "totalWithdrawn": "0",
+                "lastWithdrawalAt": "0"
+              },
+              "mapping": {
+                "totalWithdrawn": "entity.totalWithdrawn.plus(event.params.amount)",
+                "lastWithdrawalAt": "block.timestamp"
+              }
+            },
+            "WithdrawalMetrics": {
+              "id": "(block.timestamp / 86400).toString()",
+              "initialize": {
+                "timestamp": "0",
+                "totalWithdrawn": "0",
+                "totalWithdrawalEvents": "0"
+              },
+              "mapping": {
+                "timestamp": "block.timestamp",
+                "totalWithdrawn": "entity.totalWithdrawn.plus(event.params.amount)",
+                "totalWithdrawalEvents": "entity.totalWithdrawalEvents.plus(1)"
+              }
+            }
+          }
+        },
+        "AuctionRewardsEnabled(uint32)": {
+          "entities": {
+            "RewardsConfig": {
+              "id": "'current'",
+              "mapping": {
+                "auctionRewardsEnabled": "true",
+                "nextAuctionIdToReward": "event.params.nextAuctionIdToReward",
+                "auctionRewardsEnabledAt": "block.timestamp",
+                "transactionHash": "event.transaction.hash"
+              }
+            }
+          }
+        },
+        "AuctionRewardsDisabled()": {
+          "entities": {
+            "RewardsConfig": {
+              "id": "'current'",
+              "mapping": {
+                "auctionRewardsEnabled": "false",
+                "auctionRewardsDisabledAt": "block.timestamp",
+                "transactionHash": "event.transaction.hash"
+              }
+            }
+          }
+        },
+        "AuctionRewardsUpdated(uint256,uint256)": {
+          "entities": {
+            "RewardsUpdate": {
+              "id": "event.transaction.hash.toHexString().concat('-').concat(event.logIndex.toString())",
+              "mapping": {
+                "firstAuctionId": "event.params.firstAuctionId",
+                "lastAuctionId": "event.params.lastAuctionId",
+                "timestamp": "block.timestamp",
+                "transactionHash": "event.transaction.hash"
+              }
+            }
+          }
+        },
+        "ProposalRewardsEnabled(uint32,uint32)": {
+          "entities": {
+            "RewardsConfig": {
+              "id": "'current'",
+              "mapping": {
+                "proposalRewardsEnabled": "true",
+                "nextProposalIdToReward": "event.params.nextProposalIdToReward",
+                "nextProposalRewardFirstAuctionId": "event.params.nextProposalRewardFirstAuctionId",
+                "proposalRewardsEnabledAt": "block.timestamp",
+                "transactionHash": "event.transaction.hash"
+              }
+            }
+          }
+        },
+        "ProposalRewardsDisabled()": {
+          "entities": {
+            "RewardsConfig": {
+              "id": "'current'",
+              "mapping": {
+                "proposalRewardsEnabled": "false",
+                "proposalRewardsDisabledAt": "block.timestamp",
+                "transactionHash": "event.transaction.hash"
+              }
+            }
+          }
+        },
+        "ProposalRewardsUpdated(uint32,uint32,uint256,uint256,uint256,uint256,uint256)": {
+          "entities": {
+            "ProposalRewardsUpdate": {
+              "id": "event.transaction.hash.toHexString().concat('-').concat(event.logIndex.toString())",
+              "mapping": {
+                "firstProposalId": "event.params.firstProposalId",
+                "lastProposalId": "event.params.lastProposalId",
+                "firstAuctionIdForRevenue": "event.params.firstAuctionIdForRevenue",
+                "lastAuctionIdForRevenue": "event.params.lastAuctionIdForRevenue",
+                "auctionRevenue": "event.params.auctionRevenue",
+                "rewardPerProposal": "event.params.rewardPerProposal",
+                "rewardPerVote": "event.params.rewardPerVote",
+                "timestamp": "block.timestamp",
+                "transactionHash": "event.transaction.hash"
+              }
+            }
+          }
+        },
+        "AdminChanged(address,address)": {
+          "entities": {
+            "RewardsConfig": {
+              "id": "'current'",
+              "mapping": {
+                "previousAdmin": "event.params.previousAdmin",
+                "newAdmin": "event.params.newAdmin",
+                "timestamp": "block.timestamp",
+                "transactionHash": "event.transaction.hash"
+              }
+            }
+          }
+        },
+        "OwnershipTransferred(address,address)": {
+          "entities": {
+            "RewardsConfig": {
+              "id": "'current'",
+              "mapping": {
+                "previousOwner": "event.params.previousOwner",
+                "newOwner": "event.params.newOwner",
+                "timestamp": "block.timestamp",
+                "transactionHash": "event.transaction.hash"
+              }
+            }
+          }
+        },
+        "Paused(address)": {
+          "entities": {
+            "RewardsConfig": {
+              "id": "'current'",
+              "mapping": {
+                "paused": "true",
+                "pausedBy": "event.params.account",
+                "pausedAt": "block.timestamp",
+                "transactionHash": "event.transaction.hash"
+              }
+            }
+          }
+        },
+        "Unpaused(address)": {
+          "entities": {
+            "RewardsConfig": {
+              "id": "'current'",
+              "mapping": {
+                "paused": "false",
+                "unpausedBy": "event.params.account",
+                "unpausedAt": "block.timestamp",
+                "transactionHash": "event.transaction.hash"
+              }
+            }
+          }
+        }
+      }
+    }
+  ],
+  "enableCallHandlers": true
+} 
