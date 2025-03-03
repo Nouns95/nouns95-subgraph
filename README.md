@@ -2,6 +2,16 @@
 
 A collection of subgraphs indexing Nouns DAO smart contracts, developed by Macrohard. These subgraphs provide comprehensive event tracking and data aggregation for the Nouns DAO ecosystem.
 
+## Deployment
+
+The subgraphs are deployed on Goldsky and can be accessed at:
+
+### Governance Subgraph
+- GraphQL API: https://api.goldsky.com/api/public/project_cm7pqlylm0sy201xib6m37zoe/subgraphs/nouns95-financials-mainnet/1.0.0/gn
+
+### Financials Subgraph
+- GraphQL API: https://api.goldsky.com/api/public/project_cm7pqlylm0sy201xib6m37zoe/subgraphs/nouns95-financials-mainnet/1.0.0/gn
+
 ## Governance Subgraph
 
 The governance subgraph indexes events and metrics from the following contracts:
@@ -51,18 +61,6 @@ The financials subgraph indexes events and metrics from the following contracts:
 - Client rewards and participation tracking
 - Token streaming and debt management monitoring
 - Historical data for all contract interactions
-
-## Deployment
-
-The subgraphs are deployed on Goldsky and can be accessed at:
-
-### Governance Subgraph
-- Dashboard: https://api.goldsky.com/api/public/project_cm7pqlylm0sy201xib6m37zoe/subgraphs/nouns95-financials-mainnet/1.0.0/
-- GraphQL API: https://api.goldsky.com/api/public/project_cm7pqlylm0sy201xib6m37zoe/subgraphs/nouns95-financials-mainnet/1.0.0/gn
-
-### Financials Subgraph
-- Dashboard: https://app.goldsky.com/project_cm7pqlylm0sy201xib6m37zoe/dashboard/subgraphs/nouns95-financials-mainnet/1.0.0
-- GraphQL API: https://api.goldsky.com/api/public/project_cm7pqlylm0sy201xib6m37zoe/subgraphs/nouns95-financials-mainnet/1.0.0/gn
 
 ## Development
 
